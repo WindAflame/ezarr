@@ -77,7 +77,9 @@ If you're coming from an older version or reinstalling with different IDs, run `
    out by placing `#` in front of the lines. This ensures they are ignored by Docker compose. 
    Double check that your .env file is set up properly. Also make sure to add a newly generated encryption key to the
    Homarr section, if you want to use it.
-7. Run `docker compose up -d` to start the containers. If it complains about permissions run the following commands to add your current user to the docker group and apply changes:
+7. If you want to use zurg, you need to copy `resources/zurg.sample` to `resources/zurg` by running `$ cp -r resources/zurg.sample resources/zurg`.
+   Also, configure it with its documentation.
+8. Run `docker compose up -d` to start the containers. If it complains about permissions run the following commands to add your current user to the docker group and apply changes:
     ```
     sudo groupadd docker
     sudo usermod -aG docker $USER

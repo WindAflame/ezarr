@@ -78,7 +78,12 @@ sudo chown -R sabnzbd:mediacenter ${ROOT_DIR:-.}/config/sabnzbd-config
 sudo chown -R jellyseerr:mediacenter ${ROOT_DIR:-.}/config/jellyseerr-config
 sudo chown -R bazarr:mediacenter ${ROOT_DIR:-.}/config/bazarr-config
 sudo chown -R audiobookshelf:mediacenter ${ROOT_DIR:-.}/config/audiobookshelf-config
+
+# Get zurg resources
 sudo chown -R zurg:mediacenter ${ROOT_DIR:-.}/config/zurg-config
+cp resources/zurg/config.yaml ${ROOT_DIR:-.}/config/zurg-config/config.yml
+cp -r resources/zurg/scripts ${ROOT_DIR:-.}/config/zurg-config/scripts
 sudo chown -R rclone:mediacenter ${ROOT_DIR:-.}/config/rclone-config
+cp resources/zurg/rclone.conf ${ROOT_DIR:-.}/config/rclone-config/rclone.conf
 
 echo "Done! It is recommended to reboot now."
