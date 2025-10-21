@@ -41,6 +41,7 @@ It's set up to follow the [TRaSH guidelines](https://trash-guides.info/Hardlinks
 - [Overseerr](https://overseerr.dev/) is a show and movie request management and media discovery
    tool.
 - [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) is like Overseerr, but for Jellyfin.
+- [Zurg](https://github.com/debridmediamanager/zurg-testing) can download torrents with a self-hosted debrid webdav server.
 
 ## Requirements
 Currently, this script only works on Linux. There is a chance that the sample docker compose file will work on Windows,

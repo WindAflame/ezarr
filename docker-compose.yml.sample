@@ -262,3 +262,42 @@ services:
       - "8081:8080"
     restart: unless-stopped
 
+  zurg:
+    image: ghcr.io/debridmediamanager/zurg-testing:latest    
+    container_name: zurg
+    environment:
+      - PUID=${ZURG_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/zurg-config/scripts/plex_update.sh:/app/plex_update.sh
+      - ${ROOT_DIR}/config/zurg-config/config.yml:/app/config.yml
+      - zurgdata:/app/data
+    ports:
+      - 9999:9999
+    restart: unless-stopped
+
+  rclone:
+    image: rclone/rclone:latest
+    container_name: rclone
+    environment:
+      - PUID=${RCLONE_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - /mnt/zurg:/data:rshared # CHANGE /mnt/zurg WITH YOUR PREFERRED MOUNT PATH
+      - ${ROOT_DIR}/config/rclone-config/rclone.conf:/config/rclone/rclone.conf
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    depends_on:
+      - zurg
+    command: "mount zurg: /data --allow-other --allow-non-empty --dir-cache-time 10s --vfs-cache-mode full"
+    restart: unless-stopped
+
+volumes:
+  zurgdata:
+

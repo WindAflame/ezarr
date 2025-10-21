@@ -24,6 +24,8 @@ sudo useradd sabnzbd -u $SABNZBD_UID
 sudo useradd jellyseerr -u $JELLYSEERR_UID
 sudo useradd bazarr -u $BAZARR_UID
 sudo useradd audiobookshelf -u $AUDIOBOOKSHELF_UID
+sudo useradd zurg -u $ZURG_UID
+sudo useradd rclone -u $RCLONE_UID
 sudo groupadd mediacenter -g $MEDIACENTER_GID
 
 # Adds current user to the mediacenter group. This is recommended so that you can still have access to files inside the ezarr folder structure for manual control.
@@ -47,11 +49,13 @@ sudo usermod -a -G mediacenter sabnzbd
 sudo usermod -a -G mediacenter jellyseerr
 sudo usermod -a -G mediacenter bazarr
 sudo usermod -a -G mediacenter audiobookshelf
+sudo usermod -a -G mediacenter zurg
+sudo usermod -a -G mediacenter rclone
 
 # Make directories
 # ${ROOT_DIR:-.}/ means take the value from ROOT_DIR value, if failed or empty place it in the current folder
-sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,readarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr}-config
-sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata}
+sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,readarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,zurg,rclone}-config
+sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata,zurg}
 
 # Set permissions
 sudo chmod -R 775 ${ROOT_DIR:-.}/data/
@@ -74,5 +78,7 @@ sudo chown -R sabnzbd:mediacenter ${ROOT_DIR:-.}/config/sabnzbd-config
 sudo chown -R jellyseerr:mediacenter ${ROOT_DIR:-.}/config/jellyseerr-config
 sudo chown -R bazarr:mediacenter ${ROOT_DIR:-.}/config/bazarr-config
 sudo chown -R audiobookshelf:mediacenter ${ROOT_DIR:-.}/config/audiobookshelf-config
+sudo chown -R zurg:mediacenter ${ROOT_DIR:-.}/config/zurg-config
+sudo chown -R rclone:mediacenter ${ROOT_DIR:-.}/config/rclone-config
 
 echo "Done! It is recommended to reboot now."
