@@ -13,7 +13,6 @@ set +a
 sudo useradd sonarr -u $SONARR_UID
 sudo useradd radarr -u $RADARR_UID
 sudo useradd lidarr -u $LIDARR_UID
-sudo useradd readarr -u $READARR_UID
 sudo useradd mylar -u $MYLAR_UID
 sudo useradd prowlarr -u $PROWLARR_UID
 sudo useradd qbittorrent -u $QBITTORRENT_UID
@@ -38,7 +37,6 @@ sudo usermod -a -G mediacenter $USER
 sudo usermod -a -G mediacenter sonarr
 sudo usermod -a -G mediacenter radarr
 sudo usermod -a -G mediacenter lidarr
-sudo usermod -a -G mediacenter readarr
 sudo usermod -a -G mediacenter mylar
 sudo usermod -a -G mediacenter prowlarr
 sudo usermod -a -G mediacenter qbittorrent
@@ -54,7 +52,7 @@ sudo usermod -a -G mediacenter rclone
 
 # Make directories
 # ${ROOT_DIR:-.}/ means take the value from ROOT_DIR value, if failed or empty place it in the current folder
-sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,readarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,zurg,rclone}-config
+sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,zurg,rclone}-config
 sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata,zurg}
 
 # Set permissions
@@ -65,7 +63,6 @@ sudo chown -R $UID:mediacenter ${ROOT_DIR:-.}/config/
 sudo chown -R sonarr:mediacenter ${ROOT_DIR:-.}/config/sonarr-config
 sudo chown -R radarr:mediacenter ${ROOT_DIR:-.}/config/radarr-config
 sudo chown -R lidarr:mediacenter ${ROOT_DIR:-.}/config/lidarr-config
-sudo chown -R readarr:mediacenter ${ROOT_DIR:-.}/config/readarr-config
 sudo chown -R mylar:mediacenter ${ROOT_DIR:-.}/config/mylar-config
 sudo chown -R prowlarr:mediacenter ${ROOT_DIR:-.}/config/prowlarr-config
 sudo chown -R qbittorrent:mediacenter ${ROOT_DIR:-.}/config/qbittorrent-config
