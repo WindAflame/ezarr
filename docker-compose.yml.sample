@@ -181,6 +181,12 @@ services:
     volumes:
       - ${ROOT_DIR}/config/plex-config:/config
       - ${ROOT_DIR}/data/media:/media
+      # Zurg mount for Real-Debrid content
+      - ${ZURG_MOUNT_PATH}:/zurg:rshared
+    # Uncomment below if using Zurg/rclone to wait for mount to be ready
+    depends_on:
+      rclone:
+        condition: service_healthy
     restart: unless-stopped
 
   tautulli:
@@ -210,8 +216,14 @@ services:
     volumes:
       - ${ROOT_DIR}/config/jellyfin-config:/config
       - ${ROOT_DIR}/data/media:/data
+      # Zurg mount for Real-Debrid content
+      - ${ZURG_MOUNT_PATH}:/zurg:rshared
     ports:
       - "8096:8096"
+    # Uncomment below if using Zurg/rclone to wait for mount to be ready
+    depends_on:
+      rclone:
+        condition: service_healthy
     restart: unless-stopped
 
   qbittorrent:
@@ -248,18 +260,23 @@ services:
     restart: unless-stopped
 
   zurg:
-    image: ghcr.io/debridmediamanager/zurg-testing:latest    
+    image: ghcr.io/debridmediamanager/zurg-testing:latest
     container_name: zurg
     environment:
       - PUID=${ZURG_UID}
       - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
     volumes:
-      - ${ROOT_DIR}/config/zurg-config/scripts/plex_update.sh:/app/plex_update.sh
-      - ${ROOT_DIR}/config/zurg-config/config.yml:/app/config.yml
+      - ${ROOT_DIR}/config/zurg-config:/app/config
       - zurgdata:/app/data
     ports:
-      - 9999:9999
+      - "9999:9999"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/dav/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
   rclone:
@@ -270,8 +287,8 @@ services:
       - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
     volumes:
-      - /mnt/zurg:/data:rshared # CHANGE /mnt/zurg WITH YOUR PREFERRED MOUNT PATH
-      - ${ROOT_DIR}/config/rclone-config/rclone.conf:/config/rclone/rclone.conf
+      - ${ZURG_MOUNT_PATH}:/data:rshared
+      - ${ROOT_DIR}/config/rclone-config:/config/rclone
     cap_add:
       - SYS_ADMIN
     security_opt:
@@ -279,8 +296,15 @@ services:
     devices:
       - /dev/fuse:/dev/fuse:rwm
     depends_on:
-      - zurg
+      zurg:
+        condition: service_healthy
     command: "mount zurg: /data --allow-other --allow-non-empty --dir-cache-time 10s --vfs-cache-mode full"
+    healthcheck:
+      test: ["CMD", "ls", "/data"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
 
 volumes:

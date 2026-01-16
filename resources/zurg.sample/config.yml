@@ -1,32 +1,51 @@
+# Zurg Configuration
+# Get your Real-Debrid API token from: https://real-debrid.com/apitoken
 zurg: v1
-token: yourtoken
+token: YOUR_REALDEBRID_TOKEN
+
+# Server settings (defaults are fine for most users)
 # host: "[::]"
 # port: 9999
 # username:
 # password:
 # proxy:
+
+# Performance settings
 # concurrent_workers: 20
 check_for_changes_every_secs: 10
 # repair_every_mins: 60
+
+# Feature toggles
+enable_repair: true
+auto_delete_rar_torrents: true
 # ignore_renames: false
 # retain_rd_torrent_name: false
 # retain_folder_name_extension: false
-enable_repair: true
-auto_delete_rar_torrents: true
+
+# Timeout settings
 # api_timeout_secs: 15
 # download_timeout_secs: 10
-# enable_download_mount: false
 # rate_limit_sleep_secs: 6
 # retries_until_failed: 2
+
+# Advanced settings
 # network_buffer_size: 4194304 # 4MB
 # serve_from_rclone: false
 # verify_download_link: false
 # force_ipv6: false
-on_library_update: sh plex_update.sh "$@"
-#for windows comment the line above and uncomment the line below:
-#on_library_update: '& powershell -ExecutionPolicy Bypass -File .\plex_update.ps1 --% "$args"'
+# enable_download_mount: false
 
+# Library update trigger - calls plex_update.sh when changes are detected
+# The script is located in the config directory mounted at /app/config
+on_library_update: sh /app/config/plex_update.sh "$@"
+
+# For Windows, comment the line above and uncomment below:
+# on_library_update: '& powershell -ExecutionPolicy Bypass -File .\plex_update.ps1 --% "$args"'
+
+# Directory organization
+# Zurg organizes your Real-Debrid content into these categories
 directories:
+  # Anime detection (by CRC hash pattern in filename)
   anime:
     group_order: 10
     group: media
@@ -34,12 +53,14 @@ directories:
       - regex: /\b[a-fA-F0-9]{8}\b/
       - any_file_inside_regex: /\b[a-fA-F0-9]{8}\b/
 
+  # TV Shows detection (by episode pattern)
   shows:
     group_order: 20
     group: media
     filters:
       - has_episodes: true
 
+  # Movies (everything else)
   movies:
     group_order: 30
     group: media

@@ -2,8 +2,12 @@ import os
 
 
 class UserGroupSetup:
-    def __init__(self, root_dir='/'):
+    def __init__(self, root_dir='/', zurg_mount_path='/mnt/zurg', realdebrid_token='', plex_url='http://plex:32400', plex_token=''):
         self.root_dir = root_dir
+        self.zurg_mount_path = zurg_mount_path
+        self.realdebrid_token = realdebrid_token
+        self.plex_url = plex_url
+        self.plex_token = plex_token
         os.system('sudo groupadd mediacenter -g 13000')
         os.system('sudo usermod -a -G mediacenter $USER')
         os.system(
@@ -102,3 +106,108 @@ class UserGroupSetup:
         os.system('sudo useradd jackett -u 13008')
         self.create_config_dir('jackett')
         os.system('sudo usermod -a -G mediacenter jackett')
+
+    def zurg(self):
+        os.system('sudo useradd zurg -u 13015')
+        os.system('sudo usermod -a -G mediacenter zurg')
+
+        # Create zurg config directory
+        config_dir = f'{self.root_dir}/config/zurg-config'
+        os.system(f'sudo mkdir -p {config_dir} -m 775')
+        os.system(f'sudo chown -R zurg:mediacenter {config_dir}')
+
+        # Create zurg mount point
+        os.system(f'sudo mkdir -p {self.zurg_mount_path} -m 775')
+        os.system(f'sudo chown -R zurg:mediacenter {self.zurg_mount_path}')
+
+        # Generate config.yml
+        config_content = f'''zurg: v1
+token: {self.realdebrid_token if self.realdebrid_token else 'YOUR_REALDEBRID_TOKEN'}
+check_for_changes_every_secs: 10
+enable_repair: true
+auto_delete_rar_torrents: true
+on_library_update: sh /app/config/plex_update.sh "$@"
+
+directories:
+  anime:
+    group_order: 10
+    group: media
+    filters:
+      - regex: /\\b[a-fA-F0-9]{{8}}\\b/
+      - any_file_inside_regex: /\\b[a-fA-F0-9]{{8}}\\b/
+
+  shows:
+    group_order: 20
+    group: media
+    filters:
+      - has_episodes: true
+
+  movies:
+    group_order: 30
+    group: media
+    only_show_the_biggest_file: true
+    filters:
+      - regex: /.*/
+'''
+        config_path = f'{config_dir}/config.yml'
+        with open('/tmp/zurg_config.yml', 'w') as f:
+            f.write(config_content)
+        os.system(f'sudo mv /tmp/zurg_config.yml {config_path}')
+        os.system(f'sudo chown zurg:mediacenter {config_path}')
+
+        # Generate plex_update.sh
+        plex_script = f'''#!/bin/bash
+# PLEX PARTIAL SCAN script
+# Triggered by zurg when library changes are detected
+
+plex_url="{self.plex_url if self.plex_url else 'http://plex:32400'}"
+token="{self.plex_token if self.plex_token else 'YOUR_PLEX_TOKEN'}"
+zurg_mount="{self.zurg_mount_path}"
+
+# Get the list of section IDs
+section_ids=$(curl -sLX GET "$plex_url/library/sections" -H "X-Plex-Token: $token" | grep -oP 'key="\\K[^"]+' | head -20)
+
+for arg in "$@"
+do
+    parsed_arg="${{arg//\\\\}}"
+    modified_arg="$zurg_mount/$parsed_arg"
+    echo "Detected update on: $arg"
+    echo "Absolute path: $modified_arg"
+
+    for section_id in $section_ids
+    do
+        echo "Refreshing section ID: $section_id"
+        curl -G -H "X-Plex-Token: $token" --data-urlencode "path=$modified_arg" "$plex_url/library/sections/$section_id/refresh"
+    done
+done
+
+echo "All updated sections refreshed"
+'''
+        script_path = f'{config_dir}/plex_update.sh'
+        with open('/tmp/plex_update.sh', 'w') as f:
+            f.write(plex_script)
+        os.system(f'sudo mv /tmp/plex_update.sh {script_path}')
+        os.system(f'sudo chmod +x {script_path}')
+        os.system(f'sudo chown zurg:mediacenter {script_path}')
+
+    def rclone(self):
+        os.system('sudo useradd rclone -u 13016')
+        os.system('sudo usermod -a -G mediacenter rclone')
+
+        # Create rclone config directory
+        config_dir = f'{self.root_dir}/config/rclone-config'
+        os.system(f'sudo mkdir -p {config_dir} -m 775')
+        os.system(f'sudo chown -R rclone:mediacenter {config_dir}')
+
+        # Generate rclone.conf
+        rclone_config = '''[zurg]
+type = webdav
+url = http://zurg:9999/dav
+vendor = other
+pacer_min_sleep = 0
+'''
+        config_path = f'{config_dir}/rclone.conf'
+        with open('/tmp/rclone.conf', 'w') as f:
+            f.write(rclone_config)
+        os.system(f'sudo mv /tmp/rclone.conf {config_path}')
+        os.system(f'sudo chown rclone:mediacenter {config_path}')

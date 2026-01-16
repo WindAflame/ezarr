@@ -7,11 +7,21 @@ class ContainerConfig:
                  root_dir,
                  timezone,
                  plex_claim='',
+                 realdebrid_token='',
+                 zurg_mount_path='/mnt/zurg',
+                 plex_url='http://plex:32400',
+                 plex_token='',
+                 use_zurg=False,
                  ):
         self.root_dir = root_dir
         self.timezone = timezone
         self.config_dir = f'{root_dir}/config'
         self.plex_claim = plex_claim
+        self.realdebrid_token = realdebrid_token
+        self.zurg_mount_path = zurg_mount_path
+        self.plex_url = plex_url
+        self.plex_token = plex_token
+        self.use_zurg = use_zurg
         self.movie_dir = f'{root_dir}/media/movies'
         self.tv_dir = f'{root_dir}/media/tv'
         self.music_dir = f'{root_dir}/media/music'
@@ -23,11 +33,19 @@ class ContainerConfig:
         self.UID = pwd.getpwnam(getpass.getuser()).pw_uid
 
     def plex(self):
-        return (
+        config = (
             '  plex:\n'
             '    image: lscr.io/linuxserver/plex:latest\n'
             '    container_name: plex\n'
             '    network_mode: host\n'
+        )
+        if self.use_zurg:
+            config += (
+                '    depends_on:\n'
+                '      rclone:\n'
+                '        condition: service_healthy\n'
+            )
+        config += (
             '    environment:\n'
             '      - PUID=13010\n'
             '      - PGID=13000\n'
@@ -36,8 +54,11 @@ class ContainerConfig:
             '    volumes:\n'
             f'      - {self.config_dir}/plex-config:/config\n'
             f'      - {self.root_dir}/data/media:/media\n'
-            '    restart: unless-stopped\n\n'
         )
+        if self.use_zurg:
+            config += f'      - {self.zurg_mount_path}:/zurg:rshared\n'
+        config += '    restart: unless-stopped\n\n'
+        return config
 
     def tautulli(self):
         return (
@@ -58,10 +79,18 @@ class ContainerConfig:
         )
 
     def jellyfin(self):
-        return (
+        config = (
             '  jellyfin:\n'
             '    image: lscr.io/linuxserver/jellyfin:latest\n'
             '    container_name: jellyfin\n'
+        )
+        if self.use_zurg:
+            config += (
+                '    depends_on:\n'
+                '      rclone:\n'
+                '        condition: service_healthy\n'
+            )
+        config += (
             '    environment:\n'
             f'      - PUID={self.UID}\n'
             '      - PGID=13000\n'
@@ -70,10 +99,15 @@ class ContainerConfig:
             '    volumes:\n'
             f'      - {self.config_dir}/jellyfin-config:/config\n'
             f'      - {self.root_dir}/data/media:/data\n'
+        )
+        if self.use_zurg:
+            config += f'      - {self.zurg_mount_path}:/zurg:rshared\n'
+        config += (
             '    ports:\n'
             '      - "8096:8096"\n'
             '    restart: unless-stopped\n\n'
         )
+        return config
 
     def sonarr(self):
         return (
@@ -317,5 +351,66 @@ class ContainerConfig:
             '    ports:\n'
             '      - "8191:8191"\n'
             '    restart: unless-stopped\n\n'
+        )
+
+    def zurg(self):
+        return (
+            '  zurg:\n'
+            '    image: ghcr.io/debridmediamanager/zurg-testing:latest\n'
+            '    container_name: zurg\n'
+            '    environment:\n'
+            '      - PUID=13015\n'
+            '      - PGID=13000\n'
+            f'      - TZ={self.timezone}\n'
+            '    volumes:\n'
+            f'      - {self.config_dir}/zurg-config:/app/config\n'
+            '      - zurgdata:/app/data\n'
+            '    ports:\n'
+            '      - "9999:9999"\n'
+            '    healthcheck:\n'
+            '      test: ["CMD", "curl", "-f", "http://localhost:9999/dav/"]\n'
+            '      interval: 30s\n'
+            '      timeout: 10s\n'
+            '      retries: 3\n'
+            '      start_period: 10s\n'
+            '    restart: unless-stopped\n\n'
+        )
+
+    def rclone(self):
+        return (
+            '  rclone:\n'
+            '    image: rclone/rclone:latest\n'
+            '    container_name: rclone\n'
+            '    environment:\n'
+            '      - PUID=13016\n'
+            '      - PGID=13000\n'
+            f'      - TZ={self.timezone}\n'
+            '    volumes:\n'
+            f'      - {self.zurg_mount_path}:/data:rshared\n'
+            f'      - {self.config_dir}/rclone-config:/config/rclone\n'
+            '    cap_add:\n'
+            '      - SYS_ADMIN\n'
+            '    security_opt:\n'
+            '      - apparmor:unconfined\n'
+            '    devices:\n'
+            '      - /dev/fuse:/dev/fuse:rwm\n'
+            '    depends_on:\n'
+            '      zurg:\n'
+            '        condition: service_healthy\n'
+            '    command: "mount zurg: /data --allow-other --allow-non-empty --dir-cache-time 10s --vfs-cache-mode full"\n'
+            '    healthcheck:\n'
+            '      test: ["CMD", "ls", "/data"]\n'
+            '      interval: 30s\n'
+            '      timeout: 10s\n'
+            '      retries: 3\n'
+            '      start_period: 15s\n'
+            '    restart: unless-stopped\n\n'
+        )
+
+    def zurg_volumes(self):
+        """Returns the volumes section for zurg (to be added at the end of docker-compose)"""
+        return (
+            'volumes:\n'
+            '  zurgdata:\n'
         )
         

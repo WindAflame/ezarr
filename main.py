@@ -96,6 +96,13 @@ def main():
     if len(services_classed['torrent']) == 0 and len(services_classed['usenet']) == 0:
         print('Warning: no usenet or BitTorrent clients selected.')
 
+    print('\n===DEBRID (Real-Debrid via Zurg)===')
+    services_classed['debrid'] = []
+    print('Use Zurg (Real-Debrid integration)? [y/N]', end=" ")
+    if take_boolean_input(default=False):
+        services_classed['debrid'].append('zurg')
+        services_classed['debrid'].append('rclone')
+
     services = []
     for service_class in services_classed.keys():
         services.extend(services_classed[service_class])
@@ -118,6 +125,26 @@ def main():
         print('If you have a PleX claim token, enter it now. Otherwise, just press enter.', end=' ')
         plex_claim = input()
 
+    # Zurg/Real-Debrid configuration
+    realdebrid_token = ''
+    zurg_mount_path = '/mnt/zurg'
+    plex_url = 'http://plex:32400'
+    plex_token = ''
+    if 'zurg' in services:
+        print('Enter your Real-Debrid API token (get it from https://real-debrid.com/apitoken):', end=' ')
+        realdebrid_token = input()
+        print('Enter the mount path for Zurg (default: /mnt/zurg):', end=' ')
+        mount_input = input()
+        if mount_input:
+            zurg_mount_path = mount_input
+        if 'plex' in services:
+            print('Enter Plex URL for library updates (default: http://plex:32400):', end=' ')
+            plex_url_input = input()
+            if plex_url_input:
+                plex_url = plex_url_input
+            print('Enter your Plex token for library updates (optional, press enter to skip):', end=' ')
+            plex_token = input()
+
     print('Where would you like to keep your files?', end=' ')
     root_dir = take_directory_input()
 
@@ -127,17 +154,37 @@ def main():
         'services:\n'
     )
 
-    container_config = ContainerConfig(root_dir, timezone, plex_claim=plex_claim)
+    container_config = ContainerConfig(
+        root_dir,
+        timezone,
+        plex_claim=plex_claim,
+        realdebrid_token=realdebrid_token,
+        zurg_mount_path=zurg_mount_path,
+        plex_url=plex_url,
+        plex_token=plex_token,
+        use_zurg='zurg' in services
+    )
 
     for service in services:
         compose.write(getattr(container_config, service)())
+
+    # Add volumes section if zurg is used
+    if 'zurg' in services:
+        compose.write(container_config.zurg_volumes())
+
     compose.close()
     print("Docker compose file generated successfully.")
 
     print("Do you want to also generate the required folder structure and permissions? (this is required for first time setup) [Y/n]: ")
     generate_permissions = take_boolean_input()
     if generate_permissions:
-        permission_setup = UserGroupSetup(root_dir=root_dir)
+        permission_setup = UserGroupSetup(
+            root_dir=root_dir,
+            zurg_mount_path=zurg_mount_path,
+            realdebrid_token=realdebrid_token,
+            plex_url=plex_url,
+            plex_token=plex_token
+        )
         for service in services:
             try:
                 getattr(permission_setup, service)()
