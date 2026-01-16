@@ -53,7 +53,8 @@ sudo usermod -a -G mediacenter rclone
 # Make directories
 # ${ROOT_DIR:-.}/ means take the value from ROOT_DIR value, if failed or empty place it in the current folder
 sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,zurg,rclone}-config
-sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata,zurg}
+sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata}
+sudo mkdir -p ${ROOT_DIR:-.}/data/zurg
 
 # Set permissions
 sudo chmod -R 775 ${ROOT_DIR:-.}/data/
@@ -75,12 +76,14 @@ sudo chown -R sabnzbd:mediacenter ${ROOT_DIR:-.}/config/sabnzbd-config
 sudo chown -R jellyseerr:mediacenter ${ROOT_DIR:-.}/config/jellyseerr-config
 sudo chown -R bazarr:mediacenter ${ROOT_DIR:-.}/config/bazarr-config
 sudo chown -R audiobookshelf:mediacenter ${ROOT_DIR:-.}/config/audiobookshelf-config
+sudo chown -R zurg:mediacenter ${ROOT_DIR:-.}/config/zurg-config
+sudo chown -R rclone:mediacenter ${ROOT_DIR:-.}/config/rclone-config
 
 # Get zurg resources
 sudo chown -R zurg:mediacenter ${ROOT_DIR:-.}/config/zurg-config
-cp resources/zurg/config.yaml ${ROOT_DIR:-.}/config/zurg-config/config.yml
-cp -r resources/zurg/scripts ${ROOT_DIR:-.}/config/zurg-config/scripts
+cp resources/zurg.sample/config.yaml ${ROOT_DIR:-.}/config/zurg-config/config.yml
+cp -r resources/zurg.sample/scripts ${ROOT_DIR:-.}/config/zurg-config/scripts
 sudo chown -R rclone:mediacenter ${ROOT_DIR:-.}/config/rclone-config
-cp resources/zurg/rclone.conf ${ROOT_DIR:-.}/config/rclone-config/rclone.conf
+cp resources/zurg.sample/rclone.conf ${ROOT_DIR:-.}/config/rclone-config/rclone.conf
 
 echo "Done! It is recommended to reboot now."
