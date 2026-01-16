@@ -211,3 +211,12 @@ pacer_min_sleep = 0
             f.write(rclone_config)
         os.system(f'sudo mv /tmp/rclone.conf {config_path}')
         os.system(f'sudo chown rclone:mediacenter {config_path}')
+
+    def rdtclient(self):
+        os.system('sudo useradd rdtclient -u 13017')
+        os.system('sudo usermod -a -G mediacenter rdtclient')
+
+        # Create rdtclient config directory
+        config_dir = f'{self.root_dir}/config/rdtclient-config'
+        os.system(f'sudo mkdir -p {config_dir} -m 775')
+        os.system(f'sudo chown -R rdtclient:mediacenter {config_dir}')

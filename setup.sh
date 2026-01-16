@@ -49,10 +49,11 @@ sudo usermod -a -G mediacenter bazarr
 sudo usermod -a -G mediacenter audiobookshelf
 sudo usermod -a -G mediacenter zurg
 sudo usermod -a -G mediacenter rclone
+sudo usermod -a -G mediacenter rdtclient
 
 # Make directories
 # ${ROOT_DIR:-.}/ means take the value from ROOT_DIR value, if failed or empty place it in the current folder
-sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,zurg,rclone}-config
+sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,zurg,rclone,rdtclient}-config
 sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata}
 sudo mkdir -p ${ROOT_DIR:-.}/data/zurg
 
@@ -78,6 +79,7 @@ sudo chown -R bazarr:mediacenter ${ROOT_DIR:-.}/config/bazarr-config
 sudo chown -R audiobookshelf:mediacenter ${ROOT_DIR:-.}/config/audiobookshelf-config
 sudo chown -R zurg:mediacenter ${ROOT_DIR:-.}/config/zurg-config
 sudo chown -R rclone:mediacenter ${ROOT_DIR:-.}/config/rclone-config
+sudo chown -R rdtclient:mediacenter ${ROOT_DIR:-.}/config/rdtclient-config
 
 # Get zurg resources
 sudo chown -R zurg:mediacenter ${ROOT_DIR:-.}/config/zurg-config

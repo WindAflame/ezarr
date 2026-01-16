@@ -407,6 +407,36 @@ class ContainerConfig:
             '    restart: unless-stopped\n\n'
         )
 
+    def rdtclient(self):
+        config = (
+            '  rdtclient:\n'
+            '    image: rogerfar/rdtclient:latest\n'
+            '    container_name: rdtclient\n'
+        )
+        if self.use_zurg:
+            config += (
+                '    depends_on:\n'
+                '      rclone:\n'
+                '        condition: service_healthy\n'
+            )
+        config += (
+            '    environment:\n'
+            '      - PUID=13017\n'
+            '      - PGID=13000\n'
+            f'      - TZ={self.timezone}\n'
+            '    volumes:\n'
+            f'      - {self.config_dir}/rdtclient-config:/data/db\n'
+            f'      - {self.root_dir}/data/torrents:/data/downloads\n'
+        )
+        if self.use_zurg:
+            config += f'      - {self.zurg_mount_path}:/zurg:rshared\n'
+        config += (
+            '    ports:\n'
+            '      - "6500:6500"\n'
+            '    restart: unless-stopped\n\n'
+        )
+        return config
+
     def zurg_volumes(self):
         """Returns the volumes section for zurg (to be added at the end of docker-compose)"""
         return (

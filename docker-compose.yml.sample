@@ -259,6 +259,26 @@ services:
       - "8081:8080"
     restart: unless-stopped
 
+  rdtclient:
+    image: rogerfar/rdtclient:latest
+    container_name: rdtclient
+    environment:
+      - PUID=${RDTCLIENT_UID:-13017}
+      - PGID=${MEDIACENTER_GID:-13000}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/rdtclient-config:/data/db
+      - ${ROOT_DIR}/data/torrents:/data/downloads
+      # Zurg mount for Real-Debrid content (optional)
+      - ${ZURG_MOUNT_PATH:-/mnt/zurg}:/zurg:rshared
+    ports:
+      - "6500:6500"
+    # Uncomment below if using Zurg/rclone
+    depends_on:
+      rclone:
+        condition: service_healthy
+    restart: unless-stopped
+
   zurg:
     image: ghcr.io/debridmediamanager/zurg-testing:latest
     container_name: zurg

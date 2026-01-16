@@ -96,12 +96,13 @@ def main():
     if len(services_classed['torrent']) == 0 and len(services_classed['usenet']) == 0:
         print('Warning: no usenet or BitTorrent clients selected.')
 
-    print('\n===DEBRID (Real-Debrid via Zurg)===')
+    print('\n===DEBRID (Real-Debrid)===')
     services_classed['debrid'] = []
-    print('Use Zurg (Real-Debrid integration)? [y/N]', end=" ")
+    print('Use Zurg (Real-Debrid WebDAV mount)? [y/N]', end=" ")
     if take_boolean_input(default=False):
         services_classed['debrid'].append('zurg')
         services_classed['debrid'].append('rclone')
+    take_input('rdtclient', 'debrid', 'RDTClient (Real-Debrid Torrent Client)')
 
     services = []
     for service_class in services_classed.keys():
