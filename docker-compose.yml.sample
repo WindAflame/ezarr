@@ -267,7 +267,8 @@ services:
       - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
     volumes:
-      - ${ROOT_DIR}/config/zurg-config:/app/config
+      - ${ROOT_DIR}/config/zurg-config/config.yml:/app/config.yml
+      - ${ROOT_DIR}/config/zurg-config/scripts/plex_update.sh:/app/plex_update.sh
       - zurgdata:/app/data
     ports:
       - "9999:9999"
@@ -283,12 +284,10 @@ services:
     image: rclone/rclone:latest
     container_name: rclone
     environment:
-      - PUID=${RCLONE_UID}
-      - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
     volumes:
       - ${ZURG_MOUNT_PATH}:/data:rshared
-      - ${ROOT_DIR}/config/rclone-config:/config/rclone
+      - ${ROOT_DIR}/config/rclone-config/rclone.rd.conf:/config/rclone/rclone.conf
     cap_add:
       - SYS_ADMIN
     security_opt:
@@ -298,7 +297,7 @@ services:
     depends_on:
       zurg:
         condition: service_healthy
-    command: "mount zurg: /data --allow-other --allow-non-empty --dir-cache-time 10s --vfs-cache-mode full"
+    command: "mount zurg: /data --uid ${UID} --gid ${MEDIACENTER_GID} --allow-other --allow-non-empty --dir-cache-time 10s --vfs-cache-mode full"
     healthcheck:
       test: ["CMD", "ls", "/data"]
       interval: 30s
