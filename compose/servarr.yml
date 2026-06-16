@@ -1,0 +1,106 @@
+---
+services:
+  sonarr:
+    # TV series manager: tracks, searches and organizes TV show downloads
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=${SONARR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/sonarr-config:/config
+      - ${ROOT_DIR}/data:/data
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+
+  radarr:
+    # Movie manager: tracks, searches and organizes movie downloads
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=${RADARR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/radarr-config:/config
+      - ${ROOT_DIR}/data:/data
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+
+  lidarr:
+    # Music manager: tracks, searches and organizes music album downloads
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=${LIDARR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/lidarr-config:/config
+      - ${ROOT_DIR}/data:/data
+    ports:
+      - "8686:8686"
+    restart: unless-stopped
+
+  kapowarr:
+    # Comic book library manager: searches, downloads and organizes digital comics (Mylar3 alternative)
+    container_name: kapowarr
+    image: mrcas/kapowarr:latest
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Etc/UTC
+    volumes:
+      - ${ROOT_DIR}/config/kapowarr-config:/app/db
+      - ${ROOT_DIR}/data:/data
+    ports:
+      - 5656:5656
+
+  audiobookshelf:
+    # Self-hosted audiobook and podcast server
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: audiobookshelf
+    environment:
+      - user=${AUDIOBOOKSHELF_UID}:${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/audiobookshelf:/config
+      - ${ROOT_DIR}/data/media/audiobooks:/audiobooks
+      - ${ROOT_DIR}/data/media/podcasts:/podcasts
+      - ${ROOT_DIR}/data/media/audiobookshelf-metadata:/metadata
+    ports:
+      - "13378:80"
+    restart: unless-stopped
+
+  bazarr:
+    # Subtitle manager companion for Sonarr/Radarr
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=${BAZARR_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/bazarr-config:/config
+      - ${ROOT_DIR}/data/media:/media
+    ports:
+      - "6767:6767"
+    restart: unless-stopped
+
+  questarr:
+    # Video game manager for the *arr ecosystem
+    image: ghcr.io/doezer/questarr:latest
+    container_name: questarr
+    environment:
+      - SQLITE_DB_PATH=/app/data/sqlite.db
+    volumes:
+      - ${ROOT_DIR}/data:/data
+    ports:
+      - "5000:5000"
+    restart: unless-stopped

@@ -1,0 +1,57 @@
+---
+services:
+  plex:
+    # Media server: streams your library to apps and devices, with optional hardware transcoding
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=${PLEX_UID}
+      - PGID=${MEDIACENTER_GID}
+      - VERSION=docker
+      - PLEX_CLAIM=${PLEX_CLAIM}
+    volumes:
+      - ${ROOT_DIR}/config/plex-config:/config
+      - ${ROOT_DIR}/data/media:/media
+      # Zurg mount for Real-Debrid content. Uncomment if compose/debrid.yml is included.
+      # - ${ZURG_MOUNT_PATH}:/zurg:rshared
+    # Uncomment below if compose/debrid.yml is included, to wait for the mount to be ready
+    # depends_on:
+    #   rclone:
+    #     condition: service_healthy
+    restart: unless-stopped
+
+  jellyfin:
+    # Free, open-source media server (Plex alternative)
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=${UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/jellyfin-config:/config
+      - ${ROOT_DIR}/data/media:/data
+      # Zurg mount for Real-Debrid content. Uncomment if compose/debrid.yml is included.
+      # - ${ZURG_MOUNT_PATH}:/zurg:rshared
+    ports:
+      - "8096:8096"
+    # Uncomment below if compose/debrid.yml is included, to wait for the mount to be ready
+    # depends_on:
+    #   rclone:
+    #     condition: service_healthy
+    restart: unless-stopped
+
+  feishin:
+    # Modern web/desktop music client for Jellyfin, Navidrome or Subsonic libraries
+    image: ghcr.io/jeffvli/feishin:latest
+    container_name: feishin
+    environment:
+      - SERVER_NAME=jellyfin
+      - SERVER_TYPE=jellyfin
+      - SERVER_URL=
+      - SERVER_LOCK=false
+    ports:
+      - "9180:9180"
+    restart: unless-stopped

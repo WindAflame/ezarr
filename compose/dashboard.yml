@@ -1,0 +1,28 @@
+---
+services:
+  homarr:
+    # Customizable dashboard with Docker integration for all your services
+    container_name: homarr
+    image: ghcr.io/homarr-labs/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - ./homarr/appdata:/appdata
+    environment:
+      - SECRET_ENCRYPTION_KEY=
+    ports:
+      - "7575:7575"
+
+  homer:
+    # Lightweight static dashboard configured via a single YAML file (Homarr alternative)
+    container_name: homer
+    image: b4bz/homer:latest
+    user: 1000:1000 # default
+    restart: unless-stopped
+    volumes:
+      - ${ROOT_DIR}/config/homer-config:/www/assets
+    environment:
+      - INIT_ASSETS=1 # default, requires the config directory to be writable for the container user (see user option)
+    ports:
+      # 8080 is already used by qbittorrent, mapped to 8082 on the host to avoid a conflict
+      - 8082:8080

@@ -1,0 +1,56 @@
+---
+services:
+  qbittorrent:
+    # BitTorrent client with a web UI
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${QBITTORRENT_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${ROOT_DIR}/config/qbittorrent-config:/config
+      - ${ROOT_DIR}/data/torrents:/data/torrents
+    ports:
+      - "8080:8080"
+      - "6881:6881"
+      - "6881:6881/udp"
+    restart: unless-stopped
+
+  sabnzbd:
+    # Usenet (NZB) download client
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    environment:
+      - PUID=${SABNZBD_UID}
+      - PGID=${MEDIACENTER_GID}
+      - UMASK=002
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/sabnzbd-config:/config
+      - ${ROOT_DIR}/data/usenet:/data/usenet
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+
+  rdtclient:
+    # Web client to manage Real-Debrid torrents/downloads
+    image: rogerfar/rdtclient:latest
+    container_name: rdtclient
+    environment:
+      - PUID=${RDTCLIENT_UID:-13017}
+      - PGID=${MEDIACENTER_GID:-13000}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/rdtclient-config:/data/db
+      - ${ROOT_DIR}/data/torrents:/data/downloads
+      # Zurg mount for Real-Debrid content (optional)
+      - ${ZURG_MOUNT_PATH:-/mnt/zurg}:/zurg:rshared
+    ports:
+      - "6500:6500"
+    depends_on:
+      rclone:
+        condition: service_healthy
+    restart: unless-stopped

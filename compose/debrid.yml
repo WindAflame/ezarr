@@ -1,0 +1,53 @@
+---
+services:
+  zurg:
+    # Real-Debrid WebDAV server: exposes your debrid library as a mountable filesystem
+    image: ghcr.io/debridmediamanager/zurg-testing:latest
+    container_name: zurg
+    environment:
+      - PUID=${ZURG_UID}
+      - PGID=${MEDIACENTER_GID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/zurg-config/config.yml:/app/config.yml
+      - ${ROOT_DIR}/config/zurg-config/scripts/plex_update.sh:/app/plex_update.sh
+      - zurgdata:/app/data
+    ports:
+      - "9999:9999"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9999/dav/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  rclone:
+    # Mounts the Zurg WebDAV share as a local filesystem so Plex/Jellyfin can read it
+    image: rclone/rclone:latest
+    container_name: rclone
+    environment:
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ZURG_MOUNT_PATH}:/data:rshared
+      - ${ROOT_DIR}/config/rclone-config/rclone.rd.conf:/config/rclone/rclone.conf
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    depends_on:
+      zurg:
+        condition: service_healthy
+    command: "mount zurg: /data --uid ${UID} --gid ${MEDIACENTER_GID} --allow-other --allow-non-empty --dir-cache-time 10s --vfs-cache-mode full"
+    healthcheck:
+      test: ["CMD", "ls", "/data"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  zurgdata:
