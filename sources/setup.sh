@@ -57,7 +57,7 @@ sudo usermod -a -G mediacenter rdtclient
 # Make directories
 # ${ROOT_DIR:-.}/ means take the value from ROOT_DIR value, if failed or empty place it in the current folder
 sudo mkdir -pv ${ROOT_DIR:-.}/config/{sonarr,radarr,lidarr,mylar,prowlarr,qbittorrent,jackett,audiobookshelf,overseerr,plex,jellyfin,tautulli,sabnzbd,jellyseerr,bazarr,zurg,rclone,rdtclient}-config
-sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata}
+sudo mkdir -pv ${ROOT_DIR:-.}/data/{torrents,usenet,media}/{tv,movies,music,books,comics,audiobooks,podcasts,audiobookshelf-metadata,roms,games}
 sudo mkdir -p ${ROOT_DIR:-.}/data/zurg
 
 # Set permissions

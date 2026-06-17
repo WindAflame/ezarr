@@ -55,3 +55,36 @@ services:
     ports:
       - "9180:9180"
     restart: unless-stopped
+
+  romm:
+    # ROM library manager: scan, browse and play your retro game collection with metadata and cover art
+    image: rommapp/romm:latest
+    container_name: romm
+    environment:
+      - TZ=${TIMEZONE}
+      - IGDB_CLIENT_ID=${IGDB_CLIENT_ID}
+      - IGDB_CLIENT_SECRET=${IGDB_CLIENT_SECRET}
+      - ROMM_AUTH_SECRET_KEY=${ROMM_AUTH_SECRET_KEY}
+    volumes:
+      - ${ROOT_DIR}/config/romm-config:/romm/config
+      - ${ROOT_DIR}/config/romm-config/database:/romm/database
+      - ${ROOT_DIR}/config/romm-config/resources:/romm/resources
+      - ${ROOT_DIR}/config/romm-config/logs:/romm/logs
+      - ${ROOT_DIR}/data/media/games:/romm/library
+    ports:
+      - "8083:8080"
+    restart: unless-stopped
+
+  gameyfin:
+    # Game library frontend: scan a local games folder and serve a discovery interface with metadata (Romm alternative for PC games)
+    image: grimsi/gameyfin:latest
+    container_name: gameyfin
+    environment:
+      - TZ=${TIMEZONE}
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/gameyfin/data/gameyfin
+    volumes:
+      - ${ROOT_DIR}/config/gameyfin-config:/gameyfin/data
+      - ${ROOT_DIR}/data/media/games:/games:ro
+    ports:
+      - "8084:8080"
+    restart: unless-stopped
