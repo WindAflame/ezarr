@@ -15,3 +15,5 @@ include:
   - compose/download-clients.yml
   - compose/debrid.yml
   - compose/dashboard.yml
+  # Uncomment ONE of the three reverse proxies below (traefik / caddy / nginx-proxy-manager):
+  # - compose/reverse-proxy.yml

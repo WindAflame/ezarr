@@ -1,0 +1,56 @@
+---
+services:
+  traefik:
+    # Dynamic reverse proxy with automatic Let's Encrypt and Docker-native service discovery
+    image: traefik:latest
+    container_name: traefik
+    environment:
+      - TZ=${TIMEZONE}
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme.json"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${ROOT_DIR}/config/traefik-config:/etc/traefik
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8880:8080"
+    restart: unless-stopped
+
+  caddy:
+    # File-driven reverse proxy with automatic HTTPS — configure via Caddyfile (Traefik alternative)
+    image: caddy:latest
+    container_name: caddy
+    environment:
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/caddy-config/Caddyfile:/etc/caddy/Caddyfile
+      - ${ROOT_DIR}/config/caddy-config/data:/data
+      - ${ROOT_DIR}/config/caddy-config/config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    restart: unless-stopped
+
+  nginx-proxy-manager:
+    # Web UI for managing nginx reverse proxy rules and Let's Encrypt certificates (Traefik alternative)
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    environment:
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${ROOT_DIR}/config/nginx-proxy-manager-config:/data
+      - ${ROOT_DIR}/config/nginx-proxy-manager-config/letsencrypt:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    restart: unless-stopped
