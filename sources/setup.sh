@@ -1,9 +1,12 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
 # Set up your .env file BEFORE running this script!!!
 # export all variables from .env
 set -a
-source .env
+source "$PROJECT_ROOT/.env"
 set +a
 # This is always going to complain about UID being a read-only variable. 
 # However that is not a problem and it's necessary for UID to be defined in the .env so that docker-compose.yml can take it.
@@ -83,9 +86,9 @@ sudo chown -R rdtclient:mediacenter ${ROOT_DIR:-.}/config/rdtclient-config
 
 # Get zurg resources
 sudo chown -R zurg:mediacenter ${ROOT_DIR:-.}/config/zurg-config
-cp resources/zurg.sample/config.yaml ${ROOT_DIR:-.}/config/zurg-config/config.yml
-cp -r resources/zurg.sample/scripts ${ROOT_DIR:-.}/config/zurg-config/scripts
+cp "$PROJECT_ROOT/resources/zurg.sample/config.yml" ${ROOT_DIR:-.}/config/zurg-config/config.yml
+cp -r "$PROJECT_ROOT/resources/zurg.sample/scripts" ${ROOT_DIR:-.}/config/zurg-config/scripts
 sudo chown -R rclone:mediacenter ${ROOT_DIR:-.}/config/rclone-config
-cp resources/zurg.sample/rclone.conf ${ROOT_DIR:-.}/config/rclone-config/rclone.conf
+cp "$PROJECT_ROOT/resources/zurg.sample/rclone.conf" ${ROOT_DIR:-.}/config/rclone-config/rclone.conf
 
 echo "Done! It is recommended to reboot now."

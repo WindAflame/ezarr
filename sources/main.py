@@ -1,6 +1,9 @@
 import os
+from pathlib import Path
 from container_configs import ContainerConfig
 from users_groups_setup import UserGroupSetup
+
+PROJECT_ROOT = Path(__file__).parent.parent
 
 services_classed = dict()
 
@@ -149,7 +152,7 @@ def main():
     print('Where would you like to keep your files?', end=' ')
     root_dir = take_directory_input()
 
-    compose = open('docker-compose.yml', 'w')
+    compose = open(PROJECT_ROOT / 'docker-compose.yml', 'w')
     compose.write(
         '---\n'
         'services:\n'
