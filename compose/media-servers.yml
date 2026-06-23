@@ -74,6 +74,8 @@ services:
     environment:
       - TZ=${TIMEZONE}
       - SPRING_DATASOURCE_URL=jdbc:h2:file:/gameyfin/data/gameyfin
+      - PUID=${UID}
+      - PGID=${MEDIACENTER_GID}
     volumes:
       - ${ROOT_DIR}/config/gameyfin-config:/gameyfin/data
       - ${ROOT_DIR}/data/media/games:/games:ro
