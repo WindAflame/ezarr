@@ -37,9 +37,8 @@ It's set up to follow the [TRaSH guidelines](https://trash-guides.info/Hardlinks
   what has been watched, who watched it, when and where they watched it, and how it was watched.
 - [Jellyfin](https://jellyfin.org/) is an alternative for PleX. Which you'd like to use is a matter
   of preference, and you *could* even use both, although this is probably a waste of resources.
-- [Overseerr](https://overseerr.dev/) is a show and movie request management and media discovery
-   tool.
-- [Jellyseerr](https://github.com/Fallenbagel/jellyseerr) is like Overseerr, but for Jellyfin.
+<!-- SHort description of seerr with link-->
+- [Seerr](https://seerr.dev) ?
 - [Zurg](https://github.com/debridmediamanager/zurg-testing) can download torrents with a self-hosted debrid webdav server.
 
 ## Requirements

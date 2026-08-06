@@ -1,45 +1,32 @@
 ---
 services:
-  overseerr:
-    # Request and media discovery manager for Plex
-    image: sctx/overseerr:latest
-    container_name: overseerr
+  seerr:
+    # Request and media discovery manager for Plex/Jellyfin
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
     environment:
-      - PUID=${OVERSEERR_UID}
-      - PGID=${MEDIACENTER_GID}
+      # Does not recommend using non-default UID/GID.
+      # See the migration documentation and GitHub Issue:
+      # https://docs.seerr.dev/migration-guide/?kubernetes-values=old#config-folder-permissions
+      # https://github.com/seerr-team/seerr/discussions/2455
+      # - PUID=${UID}
+      # - PGID=${MEDIACENTER_GID}
       - UMASK=002
       - TZ=${TIMEZONE}
     volumes:
-      - ${ROOT_DIR}/config/overseerr-config:/app/config
+      - ${ROOT_DIR}/config/seerr-config:/app/config
     ports:
       - "5055:5055"
-    restart: unless-stopped
-
-  jellyseerr:
-    # Request and media discovery manager for Jellyfin (Overseerr alternative)
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
-    environment:
-      - PUID=${JELLYSEERR_UID}
-      - PGID=${MEDIACENTER_GID}
-      - UMASK=002
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${ROOT_DIR}/config/jellyseerr-config:/app/config
-    ports:
-      - "5056:5055"
     restart: unless-stopped
 
   tautulli:
     # Monitoring and statistics dashboard for Plex viewing activity
     image: lscr.io/linuxserver/tautulli:latest
     container_name: tautulli
-    # commented out because plex can also run outside of docker
-    #depends_on:
-    #  - plex
     environment:
-      - PUID=${UID}
-      - PGID=${MEDIACENTER_GID}
+      # Does not recommend using non-default UID/GID.
+      # - PUID=${UID}
+      # - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
     volumes:
       - ${ROOT_DIR}/config/tautulli-config:/config
@@ -52,8 +39,9 @@ services:
     image: ghcr.io/wizarrrr/wizarr:latest
     container_name: wizarr
     environment:
-      - PUID=${UID}
-      - PGID=${MEDIACENTER_GID}
+      # Does not recommend using non-default UID/GID.
+      # - PUID=${UID}
+      # - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
     volumes:
       - ${ROOT_DIR}/config/wizarr-config:/data

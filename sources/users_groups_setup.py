@@ -82,11 +82,6 @@ class UserGroupSetup:
         os.system('sudo useradd qbittorrent -u 13007')
         os.system('sudo usermod -a -G mediacenter qbittorrent')
 
-    def overseerr(self):
-        os.system('sudo useradd overseerr -u 13009')
-        self.create_config_dir('overseerr')
-        os.system('sudo usermod -a -G mediacenter overseerr')
-
     def plex(self):
         os.system('sudo useradd plex -u 13010')
         self.create_config_dir('plex')
@@ -96,11 +91,6 @@ class UserGroupSetup:
         os.system('sudo useradd sabnzbd -u 13011')
         self.create_config_dir('sabnzbd')
         os.system('sudo usermod -a -G mediacenter sabnzbd')
-
-    def jellyseerr(self):
-        os.system('sudo useradd jellyseerr -u 13012')
-        self.create_config_dir('jellyseerr')
-        os.system('sudo usermod -a -G mediacenter jellyseerr')
     
     def jackett(self):
         os.system('sudo useradd jackett -u 13008')

@@ -269,37 +269,18 @@ class ContainerConfig:
             '    restart: unless-stopped\n\n'
         )
 
-    def overseerr(self):
+    def seerr(self):
         return (
-            '  overseerr:\n'
-            '    image: sctx/overseerr:latest\n'
-            '    container_name: overseerr\n'
+            '  seerr:\n'
+            '    image: ghcr.io/seerr-team/seerr:latest\n'
+            '    container_name: seerr\n'
             '    environment:\n'
-            '      - PUID=13009\n'
-            '      - PGID=13000\n'
             '      - UMASK=002\n'
             f'      - TZ={self.timezone}\n'
             '    volumes:\n'
-            f'      - {self.config_dir}/overseerr-config:/app/config\n'
+            f'      - {self.config_dir}/seerr-config:/app/config\n'
             '    ports:\n'
             '      - "5055:5055"\n'
-            '    restart: unless-stopped\n\n'
-        )
-    
-    def jellyseerr(self):
-        return (
-            '  jellyseerr:\n'
-            '    image: fallenbagel/jellyseerr:latest\n'
-            '    container_name: jellyseerr\n'
-            '    environment:\n'
-            '      - PUID=13012\n'
-            '      - PGID=13000\n'
-            '      - UMASK=002\n'
-            f'      - TZ={self.timezone}\n'
-            '    volumes:\n'
-            f'      - {self.config_dir}/jellyseerr-config:/app/config\n'
-            '    ports:\n'
-            '      - "5056:5055"\n'
             '    restart: unless-stopped\n\n'
         )
 
