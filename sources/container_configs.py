@@ -180,17 +180,17 @@ class ContainerConfig:
             '    restart: unless-stopped\n\n'
         )
 
-    def mylar3(self):
+    def kapowarr(self):
         return (
-            '  mylar3:\n'
-            '    image: lscr.io/linuxserver/mylar3:latest\n'
-            '    container_name: mylar3\n'
+            '  kapowarr:\n'
+            '    image: lscr.io/linuxserver/kapowarr:latest\n'
+            '    container_name: kapowarr\n'
             '    environment:\n'
-            '      - PUID=13005\n'
+            '      - PUID=${MYLAR_UID:-13005}\n'
             '      - PGID=13000\n'
             '      - UMASK=002\n'
             '    volumes:\n'
-            f'      - {self.config_dir}/mylar-config:/config\n'
+            f'      - {self.config_dir}/kapowarr-config:/config\n'
             f'      - {self.root_dir}/data:/data\n'
             '    ports:\n'
             '      - "8090:8090"\n'
