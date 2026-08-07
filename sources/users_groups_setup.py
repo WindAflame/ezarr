@@ -55,14 +55,14 @@ class UserGroupSetup:
         self.create_config_dir('lidarr')
         os.system('sudo usermod -a -G mediacenter lidarr')
 
-    def mylar3(self):
+    def kapowarr(self):
         os.system(
-            '/bin/bash -c "sudo useradd mylar -u ${MYLAR_UID:-13005}'
+            '/bin/bash -c "sudo useradd kapowarr -u ${MYLAR_UID:-13005}'
             ' ; sudo mkdir -pv ' + self.root_dir + '/data/{media,usenet,torrents}/comics -m 775'
-            ' ; sudo chown -R mylar:mediacenter ' + self.root_dir + '/data/{media,usenet,torrents}/comics"'
+            ' ; sudo chown -R kapowarr:mediacenter ' + self.root_dir + '/data/{media,usenet,torrents}/comics"'
         )
-        self.create_config_dir('mylar')
-        os.system('sudo usermod -a -G mediacenter mylar')
+        self.create_config_dir('kapowarr')
+        os.system('sudo usermod -a -G mediacenter kapowarr')
 
     def audiobookshelf(self):
         os.system(
