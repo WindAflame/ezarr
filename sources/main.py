@@ -80,11 +80,11 @@ def main():
     if 'plex' in services_classed['ms']:
         take_input('tautulli', 'ms')
         if 'sonarr' in services_classed['servarr'] or 'radarr' in services_classed['servarr']:
-            take_input('overseerr', 'servarr')
+            take_input('seerr', 'servarr')
     take_input('jellyfin', 'ms')
     if ('jellyfin' in services_classed['ms']
             and ('sonarr' in services_classed['servarr'] or 'radarr' in services_classed['servarr'])):
-        take_input('jellyseerr', 'servarr')
+        take_input('seerr', 'servarr')
     if len(services_classed['ms']) == 0:
         print('Warning: no media servers selected.')
 
