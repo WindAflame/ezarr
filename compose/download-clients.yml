@@ -40,8 +40,8 @@ services:
     image: rogerfar/rdtclient:latest
     container_name: rdtclient
     environment:
-      - PUID=${RDTCLIENT_UID:-13017}
-      - PGID=${MEDIACENTER_GID:-13000}
+      - PUID=${RDTCLIENT_UID}
+      - PGID=${MEDIACENTER_GID}
       - TZ=${TIMEZONE}
     volumes:
       - ${ROOT_DIR}/config/rdtclient-config:/data/db

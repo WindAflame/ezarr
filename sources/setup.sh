@@ -26,6 +26,7 @@ sudo useradd bazarr -u $BAZARR_UID
 sudo useradd audiobookshelf -u $AUDIOBOOKSHELF_UID
 sudo useradd zurg -u $ZURG_UID
 sudo useradd rclone -u $RCLONE_UID
+sudo useradd rdtclient -u $RDTCLIENT_UID
 sudo groupadd mediacenter -g $MEDIACENTER_GID
 
 # Adds current user to the mediacenter group. This is recommended so that you can still have access to files inside the ezarr folder structure for manual control.
@@ -68,7 +69,7 @@ sudo chown -R mylar:mediacenter ${ROOT_DIR:-.}/config/mylar-config
 sudo chown -R prowlarr:mediacenter ${ROOT_DIR:-.}/config/prowlarr-config
 sudo chown -R qbittorrent:mediacenter ${ROOT_DIR:-.}/config/qbittorrent-config
 sudo chown -R jackett:mediacenter ${ROOT_DIR:-.}/config/jackett-config
-sudo chown -R seer:mediacenter ${ROOT_DIR:-.}/config/seer-config
+sudo chown -R $UID:mediacenter ${ROOT_DIR:-.}/config/seer-config
 sudo chown -R plex:mediacenter ${ROOT_DIR:-.}/config/plex-config
 sudo chown -R $UID:mediacenter ${ROOT_DIR:-.}/config/jellyfin-config
 sudo chown -R $UID:mediacenter ${ROOT_DIR:-.}/config/tautulli-config
