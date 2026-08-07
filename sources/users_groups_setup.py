@@ -25,7 +25,7 @@ class UserGroupSetup:
 
     def sonarr(self):
         os.system(
-            '/bin/bash -c "sudo useradd sonarr -u 13001'
+            '/bin/bash -c "sudo useradd sonarr -u ${SONARR_UID:-13001}'
             ' ; sudo mkdir -pv ' + self.root_dir + '/data/{media,usenet,torrents}/tv -m 775'
             ' ; sudo chown -R sonarr:mediacenter ' + self.root_dir + '/data/{media,usenet,torrents}/tv"'
         )
@@ -34,7 +34,7 @@ class UserGroupSetup:
 
     def radarr(self):
         os.system(
-            '/bin/bash -c "sudo useradd radarr -u 13002'
+            '/bin/bash -c "sudo useradd radarr -u ${RADARR_UID:-13002}'
             ' ; sudo mkdir -pv ' + self.root_dir + '/data/{media,usenet,torrents}/movies -m 775'
             ' ; sudo chown -R radarr:mediacenter ' + self.root_dir + '/data/{media,usenet,torrents}/movies"'
         )
@@ -42,13 +42,13 @@ class UserGroupSetup:
         os.system('sudo usermod -a -G mediacenter radarr')
 
     def bazarr(self):
-        os.system('/bin/bash -c "sudo useradd bazarr -u 13013"')
+        os.system('/bin/bash -c "sudo useradd bazarr -u ${BAZARR_UID:-13013}"')
         self.create_config_dir('bazarr')
         os.system('sudo usermod -a -G mediacenter bazarr')
 
     def lidarr(self):
         os.system(
-            '/bin/bash -c "sudo useradd lidarr -u 13003'
+            '/bin/bash -c "sudo useradd lidarr -u ${LIDARR_UID:-13003}'
             ' ; sudo mkdir -pv ' + self.root_dir + '/data/{media,usenet,torrents}/music -m 775'
             ' ; sudo chown -R lidarr:mediacenter ' + self.root_dir + '/data/{media,usenet,torrents}/music"'
         )
@@ -57,7 +57,7 @@ class UserGroupSetup:
 
     def mylar3(self):
         os.system(
-            '/bin/bash -c "sudo useradd mylar -u 13005'
+            '/bin/bash -c "sudo useradd mylar -u ${MYLAR_UID:-13005}'
             ' ; sudo mkdir -pv ' + self.root_dir + '/data/{media,usenet,torrents}/comics -m 775'
             ' ; sudo chown -R mylar:mediacenter ' + self.root_dir + '/data/{media,usenet,torrents}/comics"'
         )
@@ -66,7 +66,7 @@ class UserGroupSetup:
 
     def audiobookshelf(self):
         os.system(
-            '/bin/bash -c "sudo useradd audiobookshelf -u 13014'
+            '/bin/bash -c "sudo useradd audiobookshelf -u ${AUDIOBOOKSHELF_UID:-13014}'
             ' ; sudo mkdir -pv ' + self.root_dir + '/data/media/{audiobooks,podcasts,audiobookshelf-metadata} -m 775'
             ' ; sudo chown -R audiobookshelf:mediacenter ' + self.root_dir + '/data/media/{audiobooks,podcasts,audiobookshelf-metadata}"'
         )
@@ -74,31 +74,31 @@ class UserGroupSetup:
         os.system('sudo usermod -a -G mediacenter audiobookshelf')
 
     def prowlarr(self):
-        os.system('sudo useradd prowlarr -u 13006')
+        os.system('sudo useradd prowlarr -u ${PROWLARR_UID:-13006}')
         self.create_config_dir('prowlarr')
         os.system('sudo usermod -a -G mediacenter prowlarr')
 
     def qbittorrent(self):
-        os.system('sudo useradd qbittorrent -u 13007')
+        os.system('sudo useradd qbittorrent -u ${QBITTORRENT_UID:-13007}')
         os.system('sudo usermod -a -G mediacenter qbittorrent')
 
     def plex(self):
-        os.system('sudo useradd plex -u 13010')
+        os.system('sudo useradd plex -u ${PLEX_UID:-13010}')
         self.create_config_dir('plex')
         os.system('sudo usermod -a -G mediacenter plex')
 
     def sabnzbd(self):
-        os.system('sudo useradd sabnzbd -u 13011')
+        os.system('sudo useradd sabnzbd -u ${SABNZBD_UID:-13011}')
         self.create_config_dir('sabnzbd')
         os.system('sudo usermod -a -G mediacenter sabnzbd')
     
     def jackett(self):
-        os.system('sudo useradd jackett -u 13008')
+        os.system('sudo useradd jackett -u ${JACKETT_UID:-13008}')
         self.create_config_dir('jackett')
         os.system('sudo usermod -a -G mediacenter jackett')
 
     def zurg(self):
-        os.system('sudo useradd zurg -u 13015')
+        os.system('sudo useradd zurg -u ${ZURG_UID:-13015}')
         os.system('sudo usermod -a -G mediacenter zurg')
 
         # Create zurg config directory
