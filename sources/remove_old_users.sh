@@ -11,7 +11,6 @@ sudo docker compose -f "$PROJECT_ROOT/docker-compose.yml" down
 sudo userdel sonarr
 sudo userdel radarr
 sudo userdel lidarr
-sudo userdel readarr
 sudo userdel mylar
 sudo userdel audiobookshelf
 sudo userdel bazarr
@@ -21,5 +20,9 @@ sudo userdel plex
 sudo userdel seerr
 sudo userdel qbittorrent
 sudo userdel sabnzbd
+sudo userdel bazarr
+sudo userdel audiobookshelf
+sudo userdel zurg
+sudo userdel rclone
 sudo groupdel mediacenter
 
