@@ -54,7 +54,7 @@ For other Linux distros you may have to use a different package manager or downl
 ## Using
 ### Using the CLI
 To make things easier, a CLI has been developed. First, clone the repository in a directory of your
-choosing. You can run it by entering `python3 main.py` and the CLI will guide you through the
+choosing. You can run it by entering `python3 sources/main.py` and the CLI will guide you through the
 process. This is the recommended method if you're setting this up for the first time on a new system. 
 Please take a look at [important notes](#important-notes) before you continue. 
 **NOTE: This script will create users for each container with IDs ranging from 13001 to 13014. 
