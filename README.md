@@ -48,6 +48,11 @@ Jackett, Plex *or* Jellyfin). It features:
   play your retro game collection, enriched with metadata and cover art from IGDB.
 - [Gameyfin](https://gameyfin.org/) is a game library frontend that scans a local games folder and
   serves a discovery interface (a lighter, PC-oriented alternative to Romm).
+- [Drop](https://droposs.org/) is a self-hosted game library and store — an open-source alternative
+  to Steam/Epic. It lets you browse, manage and play your collection through a web UI and a native
+  desktop client, with metadata imported from IGDB/GiantBomb/PCGamingWiki. Drop ships with its own
+  bundled PostgreSQL database (the `drop-db` service), which is internal-only and not exposed on the
+  host. Set `DROP_EXTERNAL_URL` in your `.env` to the URL where Drop will be reachable.
 
 ### Requests & user management (`compose/requests.yml`)
 - [Seerr](https://seerr.dev) is a request and media discovery portal for Plex and Jellyfin. Users can

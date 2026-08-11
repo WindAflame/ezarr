@@ -88,3 +88,42 @@ services:
     ports:
       - "8084:8080"
     restart: unless-stopped
+
+  drop:
+    # Self-hosted game library and store — an open-source alternative to Steam/Epic
+    # (browse, manage and play your game collection, with metadata from IGDB/GiantBomb/PCGamingWiki)
+    image: ghcr.io/drop-oss/drop:latest
+    container_name: drop
+    environment:
+      - DATABASE_URL=postgres://${DROP_DB_USER:-drop}:${DROP_DB_PASSWORD:-drop}@drop-db:5432/${DROP_DB_NAME:-drop}
+      # Public URL where Drop is reachable — change for remote access / reverse proxy
+      - EXTERNAL_URL=${DROP_EXTERNAL_URL:-http://localhost:3000}
+    volumes:
+      - ${ROOT_DIR}/config/drop-config:/data
+      - ${ROOT_DIR}/data/media/games:/library
+    ports:
+      - "3000:3000"
+    depends_on:
+      drop-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  drop-db:
+    # PostgreSQL database backing Drop — internal only, not exposed on the host
+    image: postgres:14-alpine
+    container_name: drop-db
+    environment:
+      - POSTGRES_USER=${DROP_DB_USER:-drop}
+      - POSTGRES_PASSWORD=${DROP_DB_PASSWORD:-drop}
+      - POSTGRES_DB=${DROP_DB_NAME:-drop}
+    volumes:
+      - dropdb:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DROP_DB_USER:-drop} -d ${DROP_DB_NAME:-drop}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  dropdb:
