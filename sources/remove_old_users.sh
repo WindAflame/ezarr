@@ -19,6 +19,8 @@ sudo userdel plex
 sudo userdel sabnzbd
 sudo userdel bazarr
 sudo userdel audiobookshelf
+# Legacy: zurg/rclone/rdtclient were replaced by decypharr (which runs as ${UID}, no dedicated user).
+# Kept here so upgrades from the old debrid stack still clean up these users.
 sudo userdel zurg
 sudo userdel rclone
 sudo userdel rdtclient

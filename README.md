@@ -68,14 +68,16 @@ Jackett, Plex *or* Jellyfin). It features:
   features for management.
 - [SABnzbd](https://sabnzbd.org/) can download nzb's (Usenet) and provides a bunch more features for
   management.
-- [RDTClient](https://github.com/rogerfar/rdt-client) is a download client that manages your
-  Real-Debrid torrents and downloads, and integrates with the -arr apps like a regular client.
 
 ### Debrid (`compose/debrid.yml`)
-- [Zurg](https://github.com/debridmediamanager/zurg-testing) exposes your Real-Debrid library as a
-  self-hosted WebDAV server.
-- [rclone](https://rclone.org/) mounts that Zurg WebDAV share as a local filesystem so Plex/Jellyfin
-  can read Real-Debrid content directly. Zurg and rclone are enabled together.
+- [Decypharr](https://github.com/sirrobot01/decypharr) is a debrid gateway that presents a
+  qBittorrent- and SABnzbd-compatible API to Sonarr/Radarr while mounting your
+  Real-Debrid/AllDebrid/TorBox library as a local filesystem through its embedded rclone/WebDAV. It
+  replaces the previous Zurg + rclone + RDTClient stack with a single service. Configure it from its
+  web UI (`http://<host>:8282`) on first run. Because it creates a FUSE mount, its container needs
+  `SYS_ADMIN`, `/dev/fuse` and an `rshared` bind mount — set `DECYPHARR_MOUNT_PATH` in your `.env` to
+  the host path where the debrid library should appear (default `/mnt/debrid`), and share that same
+  path into Plex/Jellyfin (commented volumes are provided in `compose/media-servers.yml`).
 
 ### Dashboard (`compose/dashboard.yml`)
 - [Homarr](https://homarr.dev/) is _a sleek, modern dashboard that puts all of your apps and services at your fingertips._
@@ -152,8 +154,9 @@ If you're coming from an older version or reinstalling with different IDs, run `
    - In `docker-compose.yml`, comment out (`#`) any whole category you don't want. If you want a reverse proxy, uncomment **exactly one** of the three under the reverse-proxy line.
    - For finer control (for example, running PleX and Jellyfin at the same time is a bit unusual), keep the category included and comment out individual services inside the matching file in `compose/`.
    - Double check that your `.env` file is set up properly. Also make sure to add a newly generated encryption key to the Homarr section in `compose/dashboard.yml`, if you want to use it.
-7. If you want to use zurg, you need to copy `resources/zurg.sample` to `resources/zurg` by running `$ cp -r resources/zurg.sample resources/zurg`.
-   Also, configure it with its documentation.
+7. If you want debrid support, include `compose/debrid.yml` and set `DECYPHARR_MOUNT_PATH` in your `.env`.
+   Decypharr is configured from its web UI (`http://<host>:8282`) on first run — enter your debrid
+   token and providers there. Then point Sonarr/Radarr at it as a qBittorrent/SABnzbd download client.
 8. Run `docker compose up -d` to start the containers. If it complains about permissions run the following commands to add your current user to the docker group and apply changes:
     ```
     sudo groupadd docker
@@ -173,12 +176,10 @@ variables:
 |----------|---------|
 | `TIMEZONE` | Timezone for all containers (e.g. `Europe/Amsterdam`). |
 | `ROOT_DIR` | Absolute path where all configs and data are stored. **Must** start with `/` — see manual step 3. |
-| `UID` | ID of the user Docker runs as, and the user for services without a dedicated user (Jellyfin, Tautulli, Seerr, Wizarr, rclone mount). Find it with `id -u`. |
+| `UID` | ID of the user Docker runs as, and the user for services without a dedicated user (Jellyfin, Tautulli, Seerr, Wizarr, decypharr mount, Drop). Find it with `id -u`. |
 | `MEDIACENTER_GID` | Shared group ID for all media services (default `13000`). |
 | `PLEX_CLAIM` | Optional Plex claim token from https://www.plex.tv/claim/ (valid 4 minutes). |
-| `REALDEBRID_TOKEN` | Real-Debrid API token for Zurg/RDTClient. Get it from https://real-debrid.com/apitoken. |
-| `ZURG_MOUNT_PATH` | Host path where rclone mounts the Zurg filesystem (default `/mnt/zurg`). |
-| `PLEX_URL` / `PLEX_TOKEN` | Plex address and token used by Zurg to trigger library updates (optional). |
+| `DECYPHARR_MOUNT_PATH` | Host path where decypharr mounts your debrid library (default `/mnt/debrid`). Shared `rshared` with Plex/Jellyfin/*arr. Your debrid token itself is entered in decypharr's web UI, not here. |
 | `ACME_EMAIL` | Email used by Traefik/Caddy to register Let's Encrypt certificates. |
 | `IGDB_CLIENT_ID` / `IGDB_CLIENT_SECRET` | IGDB credentials for Romm game metadata (register at https://api.igdb.com). |
 | `ROMM_AUTH_SECRET_KEY` | Secret used to sign Romm session tokens — generate with `openssl rand -hex 32`. |

@@ -1,53 +1,29 @@
 ---
 services:
-  zurg:
-    # Real-Debrid WebDAV server: exposes your debrid library as a mountable filesystem
-    image: ghcr.io/debridmediamanager/zurg-testing:latest
-    container_name: zurg
+  decypharr:
+    # Debrid gateway: exposes a qBittorrent- and SABnzbd-compatible API to Sonarr/Radarr and mounts
+    # your Real-Debrid/AllDebrid/TorBox library as a local filesystem via its embedded rclone/WebDAV.
+    # Replaces the previous zurg + rclone + rdtclient stack with a single service.
+    # Configure it from the web UI on first run (http://<host>:8282); config is stored in /app.
+    image: cy01/blackhole:latest
+    container_name: decypharr
     environment:
-      - PUID=${ZURG_UID}
+      - PUID=${UID}
       - PGID=${MEDIACENTER_GID}
+      - UMASK=002
       - TZ=${TIMEZONE}
     volumes:
-      - ${ROOT_DIR}/config/zurg-config/config.yml:/app/config.yml
-      - ${ROOT_DIR}/config/zurg-config/scripts/plex_update.sh:/app/plex_update.sh
-      - zurgdata:/app/data
+      - ${ROOT_DIR}/config/decypharr-config:/app
+      # Debrid mount, shared with Plex/Jellyfin/*arr. Must exist on the host and be bind-mounted rshared.
+      - ${DECYPHARR_MOUNT_PATH:-/mnt/debrid}:${DECYPHARR_MOUNT_PATH:-/mnt/debrid}:rshared
+      # ezarr data tree, so the qBittorrent/SABnzbd mocks can hand imports to the *arr apps.
+      - ${ROOT_DIR}/data:/data
     ports:
-      - "9999:9999"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9999/dav/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    restart: unless-stopped
-
-  rclone:
-    # Mounts the Zurg WebDAV share as a local filesystem so Plex/Jellyfin can read it
-    image: rclone/rclone:latest
-    container_name: rclone
-    environment:
-      - TZ=${TIMEZONE}
-    volumes:
-      - ${ZURG_MOUNT_PATH}:/data:rshared
-      - ${ROOT_DIR}/config/rclone-config/rclone.rd.conf:/config/rclone/rclone.conf
+      - "8282:8282"
     cap_add:
       - SYS_ADMIN
     security_opt:
       - apparmor:unconfined
     devices:
       - /dev/fuse:/dev/fuse:rwm
-    depends_on:
-      zurg:
-        condition: service_healthy
-    command: "mount zurg: /data --uid ${UID} --gid ${MEDIACENTER_GID} --allow-other --allow-non-empty --dir-cache-time 10s --vfs-cache-mode full"
-    healthcheck:
-      test: ["CMD", "ls", "/data"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
     restart: unless-stopped
-
-volumes:
-  zurgdata:

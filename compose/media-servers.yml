@@ -13,12 +13,8 @@ services:
     volumes:
       - ${ROOT_DIR}/config/plex-config:/config
       - ${ROOT_DIR}/data/media:/media
-      # Zurg mount for Real-Debrid content. Uncomment if compose/debrid.yml is included.
-      # - ${ZURG_MOUNT_PATH}:/zurg:rshared
-    # Uncomment below if compose/debrid.yml is included, to wait for the mount to be ready
-    # depends_on:
-    #   rclone:
-    #     condition: service_healthy
+      # Debrid mount for Real-Debrid content. Uncomment if compose/debrid.yml (decypharr) is included.
+      # - ${DECYPHARR_MOUNT_PATH:-/mnt/debrid}:${DECYPHARR_MOUNT_PATH:-/mnt/debrid}:rshared
     restart: unless-stopped
 
   jellyfin:
@@ -33,14 +29,10 @@ services:
     volumes:
       - ${ROOT_DIR}/config/jellyfin-config:/config
       - ${ROOT_DIR}/data/media:/data
-      # Zurg mount for Real-Debrid content. Uncomment if compose/debrid.yml is included.
-      # - ${ZURG_MOUNT_PATH}:/zurg:rshared
+      # Debrid mount for Real-Debrid content. Uncomment if compose/debrid.yml (decypharr) is included.
+      # - ${DECYPHARR_MOUNT_PATH:-/mnt/debrid}:${DECYPHARR_MOUNT_PATH:-/mnt/debrid}:rshared
     ports:
       - "8096:8096"
-    # Uncomment below if compose/debrid.yml is included, to wait for the mount to be ready
-    # depends_on:
-    #   rclone:
-    #     condition: service_healthy
     restart: unless-stopped
 
   feishin:
