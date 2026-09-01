@@ -17,3 +17,6 @@ include:
   - compose/dashboard.yml
   # Uncomment ONE of the three reverse proxies below (traefik / caddy / nginx-proxy-manager):
   # - compose/reverse-proxy.yml
+  # SSO provider for Jellyfin (OIDC), ROMM (OIDC) and Arr apps (forward auth via reverse proxy):
+  # - compose/sso-authelia.yml
+  # - compose/sso-authentik.yml

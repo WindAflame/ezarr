@@ -1,0 +1,115 @@
+---
+# Authelia main configuration
+# Copy to ${ROOT_DIR}/config/authelia-config/configuration.yml and adapt
+
+server:
+  address: tcp://0.0.0.0:9091
+
+log:
+  level: info
+
+theme: dark
+
+# JWT and session secrets are injected via environment variables (AUTHELIA_JWT_SECRET,
+# AUTHELIA_SESSION_SECRET, AUTHELIA_STORAGE_ENCRYPTION_KEY)
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2
+      argon2:
+        iterations: 3
+        parallelism: 4
+        memory: 64
+        key_length: 32
+        salt_length: 16
+
+session:
+  name: authelia_session
+  same_site: lax
+  expiration: 12h
+  inactivity: 1h
+  remember_me: 1M
+  cookies:
+    - domain: example.com           # Replace with your domain
+      authelia_url: https://auth.example.com
+
+storage:
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /config/notifications.txt
+  # Uncomment to send real emails instead:
+  # smtp:
+  #   address: smtp://smtp.example.com:587
+  #   username: user@example.com
+  #   password: yourpassword
+  #   sender: authelia@example.com
+
+access_control:
+  default_policy: deny
+  rules:
+    # Admins: access to everything with 2FA
+    - domain: "*.example.com"
+      subject: "group:admins"
+      policy: two_factor
+
+    # Arr client: access to Arr interfaces with 1FA
+    - domain:
+        - sonarr.example.com
+        - radarr.example.com
+        - lidarr.example.com
+        - readarr.example.com
+        - bazarr.example.com
+        - prowlarr.example.com
+      subject: "group:arr-users"
+      policy: one_factor
+
+    # Media users: access to Jellyfin and ROMM only (OIDC handles auth directly)
+    - domain:
+        - jellyfin.example.com
+        - feishin.example.com
+        - romm.example.com
+        - gameyfin.example.com
+      subject: "group:media-users"
+      policy: one_factor
+
+identity_providers:
+  oidc:
+    hmac_secret: ${AUTHELIA_OIDC_HMAC_SECRET}   # openssl rand -hex 32
+    jwks:
+      - key: |
+          -----BEGIN RSA PRIVATE KEY-----
+          # Generate with: openssl genrsa -out private.pem 2048
+          # Then paste the content here
+          -----END RSA PRIVATE KEY-----
+
+    clients:
+      - client_id: jellyfin
+        client_name: Jellyfin
+        client_secret: ${AUTHELIA_OIDC_JELLYFIN_SECRET}  # openssl rand -hex 32
+        authorization_policy: one_factor
+        redirect_uris:
+          - https://jellyfin.example.com/sso/OID/redirect/authelia
+        scopes:
+          - openid
+          - profile
+          - groups
+          - email
+        userinfo_signed_response_alg: none
+
+      - client_id: romm
+        client_name: ROMM
+        client_secret: ${AUTHELIA_OIDC_ROMM_SECRET}      # openssl rand -hex 32
+        authorization_policy: one_factor
+        redirect_uris:
+          - https://romm.example.com/api/oauth/openid
+        scopes:
+          - openid
+          - profile
+          - groups
+          - email
+        userinfo_signed_response_alg: none

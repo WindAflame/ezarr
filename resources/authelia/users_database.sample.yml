@@ -1,0 +1,31 @@
+---
+# Authelia user database
+# Copy to ${ROOT_DIR}/config/authelia-config/users_database.yml
+#
+# Generate password hashes with:
+#   docker run --rm authelia/authelia:latest authelia crypto hash generate argon2 --password 'yourpassword'
+
+users:
+  # --- Admins (accès total à toutes les apps) ---
+  admin:
+    displayname: Admin
+    password: "$argon2id$v=19$..."   # à remplacer
+    email: admin@example.com
+    groups:
+      - admins
+
+  # --- Arr client (accès aux interfaces Arr) ---
+  arr-client:
+    displayname: Arr Client
+    password: "$argon2id$v=19$..."   # à remplacer
+    email: arr@example.com
+    groups:
+      - arr-users
+
+  # --- Utilisateurs média (Jellyfin + ROMM uniquement) ---
+  john:
+    displayname: John
+    password: "$argon2id$v=19$..."
+    email: john@example.com
+    groups:
+      - media-users

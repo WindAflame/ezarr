@@ -1,0 +1,90 @@
+---
+services:
+  authentik-db:
+    # PostgreSQL database backend for Authentik
+    image: docker.io/library/postgres:16-alpine
+    container_name: authentik-db
+    environment:
+      - POSTGRES_USER=authentik
+      - POSTGRES_PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+      - POSTGRES_DB=authentik
+    volumes:
+      - ${ROOT_DIR}/config/authentik-config/database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d authentik -U authentik"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  authentik-redis:
+    # Redis cache/broker for Authentik
+    image: docker.io/library/redis:alpine
+    container_name: authentik-redis
+    command: --save 60 1 --loglevel warning
+    volumes:
+      - ${ROOT_DIR}/config/authentik-config/redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  authentik-server:
+    # Authentik SSO server — provides OIDC for Jellyfin/ROMM and forward auth for Arr apps
+    image: ghcr.io/goauthentik/server:latest
+    container_name: authentik-server
+    command: server
+    environment:
+      - AUTHENTIK_REDIS__HOST=authentik-redis
+      - AUTHENTIK_POSTGRESQL__HOST=authentik-db
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=false
+      # Uncomment to send email notifications (password resets, etc.)
+      # - AUTHENTIK_EMAIL__HOST=${AUTHENTIK_EMAIL_HOST}
+      # - AUTHENTIK_EMAIL__PORT=${AUTHENTIK_EMAIL_PORT}
+      # - AUTHENTIK_EMAIL__USERNAME=${AUTHENTIK_EMAIL_USERNAME}
+      # - AUTHENTIK_EMAIL__PASSWORD=${AUTHENTIK_EMAIL_PASSWORD}
+      # - AUTHENTIK_EMAIL__USE_TLS=${AUTHENTIK_EMAIL_USE_TLS}
+      # - AUTHENTIK_EMAIL__FROM=${AUTHENTIK_EMAIL_FROM}
+    volumes:
+      - ${ROOT_DIR}/config/authentik-config/media:/media
+      - ${ROOT_DIR}/config/authentik-config/custom-templates:/templates
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  authentik-worker:
+    # Authentik background worker — handles tasks, flows, and outpost sync
+    image: ghcr.io/goauthentik/server:latest
+    container_name: authentik-worker
+    command: worker
+    environment:
+      - AUTHENTIK_REDIS__HOST=authentik-redis
+      - AUTHENTIK_POSTGRESQL__HOST=authentik-db
+      - AUTHENTIK_POSTGRESQL__USER=authentik
+      - AUTHENTIK_POSTGRESQL__NAME=authentik
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${AUTHENTIK_POSTGRES_PASSWORD}
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_ERROR_REPORTING__ENABLED=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${ROOT_DIR}/config/authentik-config/media:/media
+      - ${ROOT_DIR}/config/authentik-config/certs:/certs
+      - ${ROOT_DIR}/config/authentik-config/custom-templates:/templates
+    depends_on:
+      authentik-db:
+        condition: service_healthy
+      authentik-redis:
+        condition: service_healthy
+    restart: unless-stopped
